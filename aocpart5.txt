@@ -1,0 +1,18 @@
+var str = document.body.textContent.split('\n');
+str.splice(str.length-1);
+var str2 = str.splice(0, str.length);
+console.log(str2);
+var index = 0;
+var oldIndex = 0;
+var count = 0;
+while(index > -1 && index < str2.length){
+	oldIndex = index;	
+	index = index + parseInt(str2[index]);
+	if(parseInt(str2[oldIndex]) >= 3){
+		str2[oldIndex] = parseInt(str2[oldIndex]) - 1;
+    }else{
+		str2[oldIndex] = parseInt(str2[oldIndex]) + 1;
+    }
+	count++;
+}
+console.log(count);

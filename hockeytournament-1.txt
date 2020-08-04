@@ -1,0 +1,135 @@
+//HOCKEY TEAMS
+var ATL_TEAMS = [{name: "Detroit Redwings"}, {name: "Boston Bruins"}, {name: "Buffalo Sabres"}, {name: "Tampa Bay Lightning"}, {name: "Florida Panthers"}, {name: "Toronto Maple Leafs"}, {name: "Ottawa Senators"}, {name: "Montreal Canadiens"}];
+var MET_TEAMS = [{name: "New York Rangers"}, {name: "New York Islanders"}, {name: "New Jersey Devils"}, {name: "Philadelphia Flyers"}, {name: "Pittsburgh Penguins"}, {name: "Carolina Hurricanes"}, {name: "Columbus Blue Jackets"}, {name: "Washington Capitals"}];
+var CEN_TEAMS = [{name: "Nashville Predators"}, {name: "Winnipeg Jets"}, {name: "Colorado Avalanche"}, {name: "Dallas Stars"}, {name: "St. Louis Blues"}, {name: "Minnesota Wild"}, {name: "Chicago Blackhawks"}];
+var PAC_TEAMS = [{name: "San Jose Sharks"}, {name: "Los Angeles Kings"}, {name: "Anaheim Ducks"}, {name: "Arizona Coyotes"}, {name: "Vegas Golden Knights"}, {name: "Vancouver Canucks"}, {name: "Calgary Flames"}, {name: "Edmonton Oilers"}];
+var EC_TEAMS = ATL_TEAMS.concat(MET_TEAMS);
+var WC_TEAMS = CEN_TEAMS.concat(PAC_TEAMS);
+var ALL_TEAMS = EC_TEAMS.concat(WC_TEAMS);
+var PLAYOFF_TEAMS = [];
+var value;
+var teams = [];
+var team = {};
+for (var i = 0; i < ALL_TEAMS.length; i++){
+	ALL_TEAMS[i].points = Math.floor(Math.random() * (120-65)) + 65;
+}
+ALL_TEAMS.sort(function(a, b){return b.points - a.points});
+EC_TEAMS.sort(function(a, b){return b.points - a.points});
+WC_TEAMS.sort(function(a, b){return b.points - a.points});
+ATL_TEAMS.sort(function(a, b){return b.points - a.points});
+MET_TEAMS.sort(function(a, b){return b.points - a.points});
+CEN_TEAMS.sort(function(a, b){return b.points - a.points});
+PAC_TEAMS.sort(function(a, b){return b.points - a.points});
+for(var x = 0; x < ATL_TEAMS.length; x++){
+	ATL_TEAMS[x].division = 'A';
+	ATL_TEAMS[x].conference = 'E';
+	ATL_TEAMS[x].divisionWinner = x < 3;
+	ATL_TEAMS[x].divisionSeed = x + 1;
+}
+for(var x = 0; x < MET_TEAMS.length; x++){
+	MET_TEAMS[x].division = 'M';
+	MET_TEAMS[x].conference = 'E';
+	MET_TEAMS[x].divisionWinner = x < 3;
+	MET_TEAMS[x].divisionSeed = x + 1;
+}
+for(var x = 0; x < CEN_TEAMS.length; x++){
+	CEN_TEAMS[x].division = 'C';
+	CEN_TEAMS[x].conference = 'W';
+	CEN_TEAMS[x].divisionWinner = x < 3;
+	CEN_TEAMS[x].divisionSeed = x + 1;
+}
+for(var x = 0; x < PAC_TEAMS.length; x++){
+	PAC_TEAMS[x].division = 'P';
+	PAC_TEAMS[x].conference = 'W';
+	PAC_TEAMS[x].divisionWinner = x < 3;
+	PAC_TEAMS[x].divisionSeed = x + 1;
+}
+PLAYOFF_TEAMS = PLAYOFF_TEAMS.concat(ATL_TEAMS.filter(function(t, index){ return index < 3 }), MET_TEAMS.filter(function(t, index){ return index < 3 }), CEN_TEAMS.filter(function(t, index){ return index < 3 }), PAC_TEAMS.filter(function(t, index){ return index < 3 }));
+PLAYOFF_TEAMS = PLAYOFF_TEAMS.concat(EC_TEAMS.filter(function(t, index){ return index < 8 && !PLAYOFF_TEAMS.some(function(pt){ return pt.name === t.name }) }), WC_TEAMS.filter(function(t, index){ return index < 8 && !PLAYOFF_TEAMS.some(function(pt){ return pt.name === t.name }) }));
+PLAYOFF_TEAMS.sort(function(a, b){
+	if(a.conference < b.conference){
+		return -1;
+	}
+	if(a.conference > b.conference){
+		return 1;
+	}
+	if(a.divisionWinner > b.divisionWinner){
+		return -1;
+	}
+	if(a.divisionWinner < b.divisionWinner){
+		return 1;
+	}
+	return b.points - a.points;
+});
+for (var x = 0; x < 16; x++){
+	team = {};
+	/*
+	var teamIndex = -1;
+	while(!team.name){
+		teamIndex = Math.floor(Math.random() * (ALL_TEAMS.length-1));
+		if(!teams.some(function(t){ return t.name === ALL_TEAMS[teamIndex].name })){
+			team = ALL_TEAMS[teamIndex];
+		}
+	}*/
+	team = PLAYOFF_TEAMS[x];
+	team.seed = (x % 8) + 1;
+	team.playoffSeed = (team.divisionWinner ? team.division + team.divisionSeed : 'WC' + (team.seed === 7 ? 1 : 2));
+    for (var i = 0; i < 10; i++){
+        value = Math.floor(Math.random() * 10);
+		team["field" + i] = value;
+    }
+	teams.push(team);
+}
+for (var x = 0; x < teams.length; x++){
+    console.log(teams[x]);
+}
+var tournament = {rounds: [], winner: null};
+var round = {};
+var teamCount = teams.length;
+for (var r = 0; r < Math.log2(teams.length); r++){
+    round = {id: r, matchups: [], teamCount: teamCount};
+	var matchup = {};
+	for (var c = 0; c < (r > 0 ? round.teamCount : round.teamCount/2); r > 0 ? c = c + 2 : c++){
+		if(r > 0 || round.teamCount/2 === 1){
+			matchup = {a: tournament.rounds[r-1].matchups[c].winner, b: tournament.rounds[r-1].matchups[c+1].winner, winner: null};
+		}else{
+			var seedToFind = (c % (round.teamCount/4)) + 1
+			matchup = {a: teams.find(function(t){ return t.seed === seedToFind && !t.isSeeded}), b: teams.find(function(t){ return t.seed === ((round.teamCount/2)-seedToFind+1) && !t.isSeeded}), winner: null};
+		}
+		matchup.a.isSeeded = true;
+		matchup.b.isSeeded = true;
+		round.matchups.push(matchup);
+	}
+	teamCount = teamCount / 2;
+	tournament.rounds.push(round);
+	//RUN TOURNAMENT
+	for (var c = 0; c < teamCount; c++){
+		var matchup = round.matchups[c];
+		var winningSide = 0;
+		for (var i = 0; i < 10; i++){
+			if(matchup.a["field" + i] > matchup.b["field" + i]){
+				winningSide++;
+			}else if(matchup.a["field" + i] < matchup.b["field" + i]){
+				winningSide--;
+			}
+		}
+		var winnerValue;
+		if(winningSide > 0){
+			winnerValue = "a";
+		}else if(winningSide < 0){
+			winnerValue = "b";
+		}else{
+			winnerValue = matchup.a["points"] >= matchup.b["points"] ? "a" : "b";
+		}
+		matchup.winner = matchup[winnerValue];
+		matchup.winner.isSeeded = false;
+		if(teamCount === 1){
+			tournament.winner = matchup.winner;
+		}
+	}
+}
+
+for (var r = 0; r < tournament.rounds.length; r++){
+    console.log(tournament.rounds[r]);
+}
+console.log(tournament);

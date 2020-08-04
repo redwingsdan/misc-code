@@ -1,0 +1,59 @@
+//HOCKEY TEAMS
+var ATL_TEAMS = [{name: "Detroit Redwings"}, {name: "Boston Bruins"}, {name: "Buffalo Sabres"}, {name: "Tampa Bay Lightning"}, {name: "Florida Panthers"}, {name: "Toronto Maple Leafs"}, {name: "Ottawa Senators"}, {name: "Montreal Canadiens"}];
+var MET_TEAMS = [{name: "New York Rangers"}, {name: "New York Islanders"}, {name: "New Jersey Devils"}, {name: "Philadelphia Flyers"}, {name: "Pittsburgh Penguins"}, {name: "Carolina Hurricanes"}, {name: "Columbus Blue Jackets"}, {name: "Washington Capitals"}];
+var CEN_TEAMS = [{name: "Nashville Predators"}, {name: "Winnipeg Jets"}, {name: "Colorado Avalanche"}, {name: "Dallas Stars"}, {name: "St. Louis Blues"}, {name: "Minnesota Wild"}, {name: "Chicago Blackhawks"}];
+var PAC_TEAMS = [{name: "San Jose Sharks"}, {name: "Los Angeles Kings"}, {name: "Anaheim Ducks"}, {name: "Arizona Coyotes"}, {name: "Vegas Golden Knights"}, {name: "Vancouver Canucks"}, {name: "Calgary Flames"}, {name: "Edmonton Oilers"}];
+var ALL_TEAMS = ATL_TEAMS.concat(MET_TEAMS, CEN_TEAMS, PAC_TEAMS);
+var value;
+var teams = [];
+var team = {};
+for (var x = 0; x < 16; x++){
+	team = {};
+	var teamIndex = -1;
+	while(!team.name){
+		teamIndex = Math.floor(Math.random() * (ALL_TEAMS.length-1));
+		if(!teams.some(function(t){ return t.name === ALL_TEAMS[teamIndex].name })){
+			team = ALL_TEAMS[teamIndex];
+		}
+	}
+	team.id = x;
+    for (var i = 0; i < 10; i++){
+        value = Math.floor(Math.random() * 10);
+		team["field" + i] = value;
+    }
+	teams.push(team);
+}
+for (var x = 0; x < teams.length; x++){
+    console.log(teams[x]);
+}
+var tournament = {rounds: [], winner: null};
+var round = {};
+var teamCount = teams.length;
+for (var r = 0; r < Math.log2(teams.length); r++){
+    round = {id: r, matchups: [], teamCount: teamCount};
+	var matchup = {};
+	for (var c = 0; c < round.teamCount; c = c + 2){
+		if(r > 0){
+			matchup = {a: tournament.rounds[r-1].matchups[c].winner, b: tournament.rounds[r-1].matchups[c+1].winner, winner: null};
+		}else{
+			matchup = {a: teams[c], b: teams[c+1], winner: null};
+		}
+		round.matchups.push(matchup);
+	}
+	teamCount = teamCount / 2;
+	tournament.rounds.push(round);
+	//RUN TOURNAMENT
+	for (var c = 0; c < teamCount; c++){
+		var matchup = round.matchups[c];
+		var winnerValue = matchup.a["id"] >= matchup.b["id"] ? "a" : "b";
+		matchup.winner = matchup[winnerValue];
+		if(teamCount === 1){
+			tournament.winner = matchup.winner;
+		}
+	}
+}
+
+for (var r = 0; r < tournament.rounds.length; r++){
+    console.log(tournament.rounds[r]);
+}
+console.log(tournament);

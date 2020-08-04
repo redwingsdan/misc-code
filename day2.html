@@ -1,0 +1,80 @@
+<!--<html>
+<input type="file" id="myFile"></input>
+</html>
+<script>
+var input = document.getElementById("myFile");
+var text;
+var sum = 0;
+var max = 0;
+var min = 999999;
+input.addEventListener("change", function(){
+if(this.files && this.files[0]){
+	var myFile = this.files[0];
+	var reader = new FileReader();
+	reader.addEventListener('load', function(e){
+		text = e.target.result;
+		var lines = text.split("\n");
+		for(var index = 0; index < lines.length; index++){
+			console.log("LINE " + index,lines[index]);
+			var num = lines[index].split("\t");
+			console.log("NUM",num);
+			max = 0;
+			min = 99999;
+			for(var val = 0; val < num.length; val++){
+				if(parseInt(num[val]) > max){
+					max = parseInt(num[val]);
+				}
+				if(parseInt(num[val]) < min){
+					min = parseInt(num[val]);
+				}
+			}
+			sum = sum + (max - min);
+		}
+		console.log("SUM", sum);
+	});
+	reader.readAsBinaryString(myFile);
+}
+});
+</script>
+
+47623
+-->
+-----------PART 2 -----------------
+<html>
+<input type="file" id="myFile"></input>
+</html>
+<script>
+var input = document.getElementById("myFile");
+var text;
+var sum = 0;
+var result;
+input.addEventListener("change", function(){
+if(this.files && this.files[0]){
+	var myFile = this.files[0];
+	var reader = new FileReader();
+	reader.addEventListener('load', function(e){
+		text = e.target.result;
+		var lines = text.split("\n");
+		for(var index = 0; index < lines.length; index++){
+			console.log("LINE " + index,lines[index]);
+			var num = lines[index].split("\t");
+			console.log("NUM",num);
+			result = 0.5;
+			for(var val = 0; val < num.length; val++){
+				for(var val2 = 0; val2 < num.length; val2++){
+					if(parseInt(num[val]) != parseInt(num[val2]) && (parseInt(num[val]) / parseInt(num[val2])) % 1 === 0){
+						result = (parseInt(num[val]) / parseInt(num[val2]));
+					}
+				}
+			}
+			console.log(result);
+			sum = sum + result;
+		}
+		console.log("SUM", sum);
+	});
+	reader.readAsBinaryString(myFile);
+}
+});
+</script>
+
+312
